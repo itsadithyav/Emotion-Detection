@@ -1,0 +1,11 @@
+streamlit
+opencv-python
+librosa
+torch
+numpy
+sounddevice
+transformers
+deepface
+tensorflow
+pandas
+scikit-learn

@@ -3,7 +3,7 @@ import re
 import pandas as pd
 
 
-AUDIO_DATASET_PATH = "AI Powered Task Optimizer/data/audio/audio_speech_actors_01-24"
+AUDIO_DATASET_PATH = "Emotion-Detection-with-GUI-for-face-voice-and-text/data/audio/audio_speech_actors_01-24"
 
 
 audio_files = os.listdir(AUDIO_DATASET_PATH)
