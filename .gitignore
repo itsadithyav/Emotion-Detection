@@ -1,2 +1,6 @@
 data/
-__pycache__/
+tf_env/
+.venv
+.vscode
+tempCodeRunnerFile.py
+training/__pycache__/
