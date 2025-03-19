@@ -6,6 +6,7 @@ import librosa
 import cv2
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
+from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.models import load_model
 from tensorflow.keras.layers import Conv1D, Conv2D, MaxPooling2D, Flatten, Dense, LSTM, Embedding, Dropout, Input
@@ -21,7 +22,7 @@ IMAGE_SHAPE = (48, 48, 1)
 EMOTION_CATEGORIES = ["Anger", "Happy", "Neutral", "Sad", "Surprise", "Contempt", "Disgust", "Fear"]
 NUM_CLASSES = len(EMOTION_CATEGORIES)
 BATCH_SIZE = 32
-EPOCHS = 10
+EPOCHS = 100
 
 # Ensure model directory exists
 os.makedirs(MODEL_DIR, exist_ok=True)
@@ -84,7 +85,23 @@ else:
     print("🆕 Creating new image model...")
     image_model = create_image_model()
 
-image_model.fit(X_train_img, y_train_img, validation_data=(X_test_img, y_test_img), epochs=EPOCHS, batch_size=BATCH_SIZE)
+# Define EarlyStopping callback
+early_stopping = EarlyStopping(
+    monitor="val_accuracy",  # Monitor validation accuracy
+    patience=10,              # Stop if no improvement for 10 epochs
+    restore_best_weights=True,  # Restore the best model weights
+    verbose=1
+)
+
+# Train the model
+history = image_model.fit(
+    X_train_img, y_train_img,
+    validation_data=(X_test_img, y_test_img),
+    epochs=EPOCHS,
+    batch_size=BATCH_SIZE,
+    callbacks=[early_stopping]
+)
+
 image_model.save(IMAGE_MODEL_PATH)
     
 print("✅ Training complete! Models saved.")

@@ -8,7 +8,8 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.models import load_model
-from tensorflow.keras.layers import Conv1D, Conv2D, MaxPooling2D, Flatten, Dense, LSTM, Embedding, Dropout, Input
+from tensorflow.keras.layers import Conv1D, LSTM, Dense
+from tensorflow.keras.callbacks import EarlyStopping  # ✅ Added missing import
 
 # Paths
 MODEL_DIR = "models"
@@ -21,7 +22,7 @@ AUDIO_SHAPE = (50, 13)
 EMOTION_CATEGORIES = ["Anger", "Happy", "Neutral", "Sad", "Surprise", "Contempt", "Disgust", "Fear"]
 NUM_CLASSES = len(EMOTION_CATEGORIES)
 BATCH_SIZE = 32
-EPOCHS = 10
+EPOCHS = 100
 
 # Ensure model directory exists
 os.makedirs(MODEL_DIR, exist_ok=True)
@@ -80,7 +81,7 @@ X_train_aud, X_test_aud, y_train_aud, y_test_aud = train_test_split(X_audio, y_a
 
 print("✅ Data loading complete!")
 
-# Define models
+# Define model
 def create_audio_model():
     model = tf.keras.Sequential([
         Conv1D(32, 3, activation='relu', input_shape=AUDIO_SHAPE),
@@ -90,7 +91,7 @@ def create_audio_model():
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
-# Train models
+# Load or create model
 if os.path.exists(AUDIO_MODEL_PATH):
     print("🔄 Loading existing audio model...")
     audio_model = load_model(AUDIO_MODEL_PATH)
@@ -98,12 +99,26 @@ else:
     print("🆕 Creating new audio model...")
     audio_model = create_audio_model()
 
-audio_model.fit(X_train_aud, y_train_aud, validation_data=(X_test_aud, y_test_aud), epochs=EPOCHS, batch_size=BATCH_SIZE)
-audio_model.save(AUDIO_MODEL_PATH)
+# Define EarlyStopping callback
+early_stopping = EarlyStopping(
+    monitor="val_accuracy",  # Monitor validation accuracy
+    patience=10,              # Stop if no improvement for 10 epochs
+    restore_best_weights=True,  # Restore the best model weights
+    verbose=1
+)
 
-print("✅ Training complete! Models saved.")
+# Train model with early stopping
+history = audio_model.fit(
+    X_train_aud, y_train_aud,
+    validation_data=(X_test_aud, y_test_aud),
+    epochs=EPOCHS,
+    batch_size=BATCH_SIZE,
+    callbacks=[early_stopping]  # ✅ Added callback
+)
+
+# Save the best model
+audio_model.save(AUDIO_MODEL_PATH)
 
 # Evaluate model performance
 loss, accuracy = audio_model.evaluate(X_test_aud, y_test_aud, verbose=1)
 print(f"✅ Model evaluation complete! Test Accuracy of Audio Model: {accuracy:.4f}")
-

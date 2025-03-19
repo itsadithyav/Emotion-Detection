@@ -5,3 +5,5 @@ tf_env/
 tempCodeRunnerFile.py
 training/__pycache__/
 learn.txt
+models/logs/
+models/tokenizer.pkl

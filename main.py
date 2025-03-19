@@ -4,13 +4,18 @@ import librosa
 import numpy as np
 import sounddevice as sd
 import tensorflow as tf
-from keras.models import load_model
-from keras.preprocessing.sequence import pad_sequences
-from keras.preprocessing.text import Tokenizer
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.preprocessing.text import Tokenizer
 
-# Load trained model
-MODEL_PATH = "models/emotion_model.keras"
-model = load_model(MODEL_PATH)  # Loads in the new Keras format
+# Load pre-trained models
+TEXT_MODEL_PATH = "models/text_emotion_model.h5"
+AUDIO_MODEL_PATH = "models/audio_emotion_model.h5"
+FACE_MODEL_PATH = "models/image_emotion_model.h5"
+
+text_model = load_model(TEXT_MODEL_PATH)
+audio_model = load_model(AUDIO_MODEL_PATH)
+face_model = load_model(FACE_MODEL_PATH)
 
 # Load Tokenizer for Text Processing
 TEXT_MAXLEN = 100
@@ -18,12 +23,17 @@ TEXT_VOCAB_SIZE = 20000
 tokenizer = Tokenizer(num_words=TEXT_VOCAB_SIZE, oov_token="<OOV>")
 
 # Define emotion labels
-emotion_labels = ["Angry", "Happy", "Neutral", "Sad", "Surprised"]
+emotion_labels = ["Anger", "Happy", "Neutral", "Sad", "Surprise", "Contempt", "Disgust", "Fear"]
 
 # Function to analyze text
 def analyze_text(text):
     if not text or not isinstance(text, str):  # Handle empty or invalid input
         return "Unknown", 0.0
+
+    # Ensure tokenizer has been trained
+    if not tokenizer.word_index:  
+        sample_texts = ["I am happy", "I am sad", "I am angry", "I feel neutral"]
+        tokenizer.fit_on_texts(sample_texts)  # Fit on sample texts
 
     sequences = tokenizer.texts_to_sequences([text])
 
@@ -31,19 +41,11 @@ def analyze_text(text):
         return "Unknown", 0.0
 
     text_input = pad_sequences(sequences, maxlen=TEXT_MAXLEN, dtype="int32", padding="post", truncating="post")
-    
-    # Ensure input shape matches model's expected shape
-    text_input = np.array(text_input).reshape(1, TEXT_MAXLEN)
 
-    # Create dummy inputs for face & audio
-    dummy_face = np.zeros((1, 48, 48, 1))
-    dummy_audio = np.zeros((1, 50, 13))
-
-    prediction = model.predict([dummy_face, text_input, dummy_audio])
+    prediction = text_model.predict(text_input)
     emotion = emotion_labels[np.argmax(prediction)]
     confidence = np.max(prediction)
     return emotion, confidence
-
 
 
 # Function to analyze live audio
@@ -54,13 +56,9 @@ def analyze_audio_live(duration=5, sr=16000):
     
     # Extract features using librosa
     mfccs = librosa.feature.mfcc(y=audio_data.flatten(), sr=sr, n_mfcc=13)
-    mfccs = np.resize(mfccs, (50, 13))  # Reshape to match model input
+    mfccs = np.resize(mfccs, (50, 13))
     
-    # Dummy inputs for text & face
-    dummy_face = np.zeros((1, 48, 48, 1))
-    dummy_text = np.zeros((1, TEXT_MAXLEN))
-    
-    prediction = model.predict([dummy_face, dummy_text, np.expand_dims(mfccs, axis=0)])
+    prediction = audio_model.predict(np.expand_dims(mfccs, axis=0))
     emotion = emotion_labels[np.argmax(prediction)]
     confidence = np.max(prediction)
     return emotion, confidence
@@ -82,20 +80,14 @@ def analyze_video_live():
 
         for (x, y, w, h) in faces:
             face_roi = gray[y:y+h, x:x+w]
-            face_roi = cv2.resize(face_roi, (48, 48)) / 255.0  # Normalize
+            face_roi = cv2.resize(face_roi, (48, 48)) / 255.0
             face_roi = np.expand_dims(face_roi, axis=-1)
             face_roi = np.expand_dims(face_roi, axis=0)
             
-            # Dummy inputs for text & audio
-            dummy_text = np.zeros((1, TEXT_MAXLEN))
-            dummy_audio = np.zeros((1, 50, 13))
-            
-            # Predict emotion
-            prediction = model.predict([face_roi, dummy_text, dummy_audio])
+            prediction = face_model.predict(face_roi)
             emotion = emotion_labels[np.argmax(prediction)]
             confidence = np.max(prediction)
 
-            # Display result on video
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
             cv2.putText(frame, f"{emotion} ({confidence:.2f})", (x, y - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
