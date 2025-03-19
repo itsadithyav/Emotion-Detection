@@ -4,3 +4,4 @@ tf_env/
 .vscode
 tempCodeRunnerFile.py
 training/__pycache__/
+learn.txt
