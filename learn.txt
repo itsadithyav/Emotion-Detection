@@ -1,6 +1,0 @@
-rmsi / formula
-si score / formula
-f1 score / formula
-k-means clustering
-elbow method
-
