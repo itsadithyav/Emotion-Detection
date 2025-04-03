@@ -20,5 +20,3 @@ This project aims to develop an AI powered emotion detection system that analyze
    ```bash
    pip install -r requirements.txt
    ```
-
-Let me know if you need any modifications! 🚀
