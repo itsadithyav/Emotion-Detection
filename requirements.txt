@@ -1,5 +1,5 @@
 numpy>=1.19.0
-tensorflow>=2.0.0
+tensorflow>=2.10.0
 pandas
 librosa>=0.8.0
 opencv-python>=4.5.0
