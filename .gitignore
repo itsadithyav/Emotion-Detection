@@ -7,3 +7,4 @@ training/__pycache__/
 learn.txt
 models/logs/
 models/tokenizer.pkl
+logs/

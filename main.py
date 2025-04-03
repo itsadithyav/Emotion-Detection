@@ -50,12 +50,21 @@ def analyze_text(text):
 
 # Function to analyze live audio
 def analyze_audio_live(duration=5, sr=16000):
-    st.write("🎤 Recording...")
-    audio_data = sd.rec(int(duration * sr), samplerate=sr, channels=1, dtype='float32')
-    sd.wait()
+    recording = np.array([])
     
+    def callback(indata, frames, time, status):
+        nonlocal recording
+        recording = np.append(recording, indata[:, 0])
+    
+    stream = sd.InputStream(channels=1, samplerate=sr, callback=callback)
+    return stream, recording
+
+def process_audio(recording, sr=16000):
+    if len(recording) == 0:
+        return "Unknown", 0.0
+        
     # Extract features using librosa
-    mfccs = librosa.feature.mfcc(y=audio_data.flatten(), sr=sr, n_mfcc=13)
+    mfccs = librosa.feature.mfcc(y=recording, sr=sr, n_mfcc=13)
     mfccs = np.resize(mfccs, (50, 13))
     
     prediction = audio_model.predict(np.expand_dims(mfccs, axis=0))
@@ -111,9 +120,29 @@ if input_type == "Text":
         st.write(f"📝 Detected Emotion: **{emotion}** (Confidence: {confidence:.2f})")
 
 elif input_type == "Live Audio":
-    if st.button("Record and Analyze"):
-        emotion, confidence = analyze_audio_live()
-        st.write(f"🎤 Detected Emotion: **{emotion}** (Confidence: {confidence:.2f})")
+    if 'audio_recording' not in st.session_state:
+        st.session_state.audio_recording = None
+        st.session_state.is_recording = False
+        st.session_state.stream = None
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("Start Recording"):
+            st.session_state.stream, st.session_state.audio_recording = analyze_audio_live()
+            st.session_state.stream.start()
+            st.session_state.is_recording = True
+            st.write("🎤 Recording in progress...")
+    
+    with col2:
+        if st.button("Stop Recording", disabled=not st.session_state.is_recording):
+            if st.session_state.stream:
+                st.session_state.stream.stop()
+                st.session_state.stream.close()
+                st.session_state.is_recording = False
+                emotion, confidence = process_audio(st.session_state.audio_recording)
+                st.write(f"🎤 Detected Emotion: **{emotion}** (Confidence: {confidence:.2f})")
+                st.session_state.audio_recording = None
 
 elif input_type == "Live Video":
     if st.button("Start Live Video Analysis"):

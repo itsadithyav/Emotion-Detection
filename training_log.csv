@@ -1,0 +1,6 @@
+epoch,loss,lr,val_accuracy,val_auc,val_loss
+0,0.1639404296875,<__main__.WarmUp object at 0x000002491E15A770>,0.36417248845100403,0.7989273071289062,0.17887796461582184
+1,nan,<__main__.WarmUp object at 0x000002491E15A770>,0.5704017877578735,0.5,nan
+2,nan,<__main__.WarmUp object at 0x000002491E15A770>,0.5704017877578735,0.5,nan
+3,nan,<__main__.WarmUp object at 0x000002491E15A770>,0.5704017877578735,0.5,nan
+4,nan,<__main__.WarmUp object at 0x000002491E15A770>,0.5704017877578735,0.5,nan
