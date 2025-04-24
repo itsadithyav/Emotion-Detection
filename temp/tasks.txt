@@ -1,0 +1,11 @@
+pending|Prepare presentation for team meeting|Work|1745515337.8553436
+pending|Create weekly progress report|Work|1745515337.8568504
+pending|Update personal budget|Personal|1745515337.8626504
+pending|Call family members|Personal|1745515337.8615475
+pending|30-minute workout session|Health|1745515337.8669944
+pending|Plan healthy meals for the week|Health|1745515337.8669944
+pending|Complete coding challenge|Learning|1745515337.8742151
+pending|Study new language|Learning|1745515337.8752356
+pending|Backup important documents|Other|1745515337.880109
+pending|Update passwords|Other|1745515337.881117
+completed|Update project documentation|Work|1745515337.8553436

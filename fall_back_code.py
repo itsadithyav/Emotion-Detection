@@ -72,126 +72,34 @@ thread_pool = ThreadPoolExecutor(max_workers=2)
 
 class TaskManager:
     def __init__(self):
-        self.tasks_file = os.path.join(config.TEMP_DIR, "tasks.txt")
-        self.tasks = {"pending": [], "completed": []}
-        self.predefined_tasks = {
-            "Work": [
-                "Update project documentation",
-                "Prepare presentation for team meeting",
-                "Review and respond to important emails",
-                "Create weekly progress report",
-                "Schedule team coordination meeting",
-                "Organize digital files and folders",
-                "Update task tracking system",
-                "Research industry trends",
-                "Create backup of important files",
-                "Plan next week's objectives"
-            ],
-            "Personal": [
-                "Declutter living space",
-                "Plan weekend activities",
-                "Call family members",
-                "Update personal budget",
-                "Schedule appointments",
-                "Organize photos",
-                "Write in journal",
-                "Plan next vacation",
-                "Update personal goals list",
-                "Organize digital documents"
-            ],
-            "Health": [
-                "30-minute workout session",
-                "Plan healthy meals for the week",
-                "Schedule medical checkup",
-                "Practice meditation",
-                "Take a relaxing walk",
-                "Drink 8 glasses of water",
-                "Do stretching exercises",
-                "Get 8 hours of sleep",
-                "Try a new healthy recipe",
-                "Take vitamins and supplements"
-            ],
-            "Learning": [
-                "Read educational article",
-                "Watch online course video",
-                "Practice new skill",
-                "Complete coding challenge",
-                "Study new language",
-                "Read industry book",
-                "Attend online workshop",
-                "Take practice test",
-                "Research new topic",
-                "Review study notes"
-            ],
-            "Other": [
-                "Home maintenance check",
-                "Vehicle maintenance",
-                "Update emergency contacts",
-                "Review subscriptions",
-                "Backup important documents",
-                "Check smoke detectors",
-                "Update passwords",
-                "Clean computer/devices",
-                "Review insurance policies",
-                "Update contact list"
-            ]
-        }
+        self.tasks_file = os.path.join(config.TEMP_DIR, "tasks.json")
         self._load_tasks()
-        self._initialize_predefined_tasks()
         
-        # Emotion categories for task categorization
-        self.emotion_categories = {
-            "happy": ["creative", "social", "fun", "exciting"],
-            "sad": ["relaxing", "calm", "quiet", "peaceful"],
-            "angry": ["organizing", "cleaning", "solving", "planning"],
-            "fear": ["simple", "easy", "familiar", "structured"],
-            "neutral": ["routine", "normal", "standard", "regular"],
-            "surprise": ["new", "different", "innovative", "unusual"],
-            "disgust": ["cleaning", "organizing", "improving", "fixing"]
+        self.task_recommendations = {
+            "happy": ["creative tasks", "social activities", "learning new skills"],
+            "sad": ["relaxing activities", "mindfulness exercises", "light physical activities"],
+            "angry": ["calming activities", "organization tasks", "problem-solving"],
+            "fear": ["planning activities", "simple tasks", "team activities"],
+            "neutral": ["routine tasks", "administrative work", "analysis tasks"],
+            "surprise": ["exploration tasks", "brainstorming", "innovative projects"],
+            "disgust": ["cleansing activities", "reorganization tasks", "improvement projects"]
         }
     
-    def _initialize_predefined_tasks(self) -> None:
-        """Initialize predefined tasks if no tasks exist"""
-        if not self.tasks["pending"] and not self.tasks["completed"]:
-            for category, tasks in self.predefined_tasks.items():
-                for task in tasks:
-                    self.add_task(task, category)
-            logger.info("✅ Predefined tasks initialized")
-
     def _load_tasks(self) -> None:
-        """Load tasks from txt file"""
         if os.path.exists(self.tasks_file):
             try:
                 with open(self.tasks_file, 'r') as f:
-                    lines = f.readlines()
-                    for line in lines:
-                        if line.strip():
-                            # Format: status|task|category|timestamp
-                            status, task, category, timestamp = line.strip().split('|')
-                            task_obj = {
-                                "task": task,
-                                "category": category,
-                                "created_at": float(timestamp)
-                            }
-                            if status == "pending":
-                                self.tasks["pending"].append(task_obj)
-                            else:
-                                self.tasks["completed"].append(task_obj)
+                    self.tasks = json.load(f)
             except:
                 self.tasks = {"pending": [], "completed": []}
+        else:
+            self.tasks = {"pending": [], "completed": []}
     
     def _save_tasks(self) -> None:
-        """Save tasks to txt file"""
         with open(self.tasks_file, 'w') as f:
-            # Save pending tasks
-            for task in self.tasks["pending"]:
-                f.write(f"pending|{task['task']}|{task['category']}|{task['created_at']}\n")
-            # Save completed tasks
-            for task in self.tasks["completed"]:
-                f.write(f"completed|{task['task']}|{task['category']}|{task['created_at']}\n")
+            json.dump(self.tasks, f)
     
     def add_task(self, task: str, category: str = "") -> None:
-        """Add a new task"""
         self.tasks["pending"].append({
             "task": task,
             "category": category,
@@ -200,44 +108,17 @@ class TaskManager:
         self._save_tasks()
     
     def complete_task(self, task_index: int) -> None:
-        """Mark a task as completed"""
         if 0 <= task_index < len(self.tasks["pending"]):
             task = self.tasks["pending"].pop(task_index)
             task["completed_at"] = time.time()
             self.tasks["completed"].append(task)
             self._save_tasks()
     
-    def _task_matches_emotion(self, task: Dict[str, Any], emotion: str) -> bool:
-        """Check if a task matches the current emotion"""
-        emotion = emotion.lower()
-        if emotion not in self.emotion_categories:
-            return False
-            
-        # Check if task description or category contains any emotion-related keywords
-        text_to_check = f"{task['task'].lower()} {task['category'].lower()}"
-        return any(keyword in text_to_check for keyword in self.emotion_categories[emotion])
-    
     def get_recommendations(self, emotion: str) -> List[str]:
-        """Get task recommendations based on current emotion from user's task list"""
-        matching_tasks = []
-        
-        # First try to find tasks that match the current emotion
-        for task in self.tasks["pending"]:
-            if self._task_matches_emotion(task, emotion):
-                matching_tasks.append(f"{task['task']} ({task['category']})")
-        
-        # If no matching tasks found, return 3 random pending tasks
-        if not matching_tasks and self.tasks["pending"]:
-            import random
-            sample_size = min(3, len(self.tasks["pending"]))
-            random_tasks = random.sample(self.tasks["pending"], sample_size)
-            matching_tasks = [f"{task['task']} ({task['category']})" for task in random_tasks]
-        
-        # If still no tasks, return a message to add tasks
-        if not matching_tasks:
-            return ["Add some tasks to get personalized recommendations!"]
-            
-        return matching_tasks
+        emotion = emotion.lower()
+        if emotion in self.task_recommendations:
+            return self.task_recommendations[emotion]
+        return self.task_recommendations["neutral"]
 
 class EmotionSmoother:
     def __init__(self, buffer_size: int):
@@ -446,13 +327,15 @@ def initialize_models():
         
         model_manager.initialize_models()  # This will ensure models are cached
         
-        # Initialize text classifier without problematic parameter
+        # Initialize text classifier with offline support
         text_classifier = pipeline(
             "text-classification", 
             model=config.TEXT_MODEL,
             return_all_scores=True,
             device="cpu",
-            batch_size=1
+            batch_size=1,
+            local_files_only=config.OFFLINE_MODE,
+            cache_dir=config.TEXT_MODEL_CACHE
         )
         
         # Clean up old cached models periodically
@@ -800,42 +683,40 @@ st.markdown('<hr style="margin: 2rem 0;">', unsafe_allow_html=True)
 st.markdown('<h2 style="color: var(--accent-color);">📋 Task Management</h2>', unsafe_allow_html=True)
 
 # Task input section
-with st.expander("➕ Add New Task", expanded=True):
+col1, col2 = st.columns([3, 2])
+with col1:
     with st.form("task_form"):
-        new_task = st.text_input("Task Description", placeholder="Enter your task here...")
-        col1, col2 = st.columns([1, 1])
-        with col1:
-            task_category = st.selectbox(
-                "Category",
-                ["Work", "Personal", "Health", "Learning", "Other"],
-                index=0
-            )
-        submit_task = st.form_submit_button("Add Task")
+        new_task = st.text_input("Add a new task", placeholder="Enter your task here...")
+        task_category = st.selectbox(
+            "Task Category",
+            ["Work", "Personal", "Health", "Learning", "Other"],
+            index=0
+        )
+        submit_task = st.form_submit_button("➕ Add Task")
         
         if submit_task and new_task:
             task_manager.add_task(new_task, task_category)
             st.success("✅ Task added successfully!")
 
-# Display pending tasks in collapsible section
-if task_manager.tasks["pending"]:
-    with st.expander("📝 Your Tasks", expanded=True):
-        for i, task in enumerate(task_manager.tasks["pending"]):
-            col_task, col_complete = st.columns([4, 1])
-            with col_task:
-                st.write(f"**{task['task']}** ({task['category']})")
-            with col_complete:
-                if st.button("✅", key=f"complete_task_{i}"):
-                    task_manager.complete_task(i)
-                    st.rerun()
+# Display pending tasks
+with col2:
+    st.markdown('<h3 style="color: var(--theme-secondary);">📝 Your Tasks</h3>', unsafe_allow_html=True)
+    for i, task in enumerate(task_manager.tasks["pending"]):
+        col_task, col_complete = st.columns([4, 1])
+        with col_task:
+            st.write(f"**{task['task']}** ({task['category']})")
+        with col_complete:
+            if st.button("✅", key=f"complete_task_{i}"):
+                task_manager.complete_task(i)
+                st.rerun()
 
-# Show task recommendations based on emotion in collapsible section
+# Show task recommendations based on emotion
 if st.session_state.last_emotion:
-    with st.expander("🎯 Recommended Tasks", expanded=True):
-        recommendations = task_manager.get_recommendations(st.session_state.last_emotion)
-        for rec in recommendations:
-            st.info(f"💡 {rec}")
+    st.markdown('<h3 style="color: var(--theme-secondary);">🎯 Recommended Tasks</h3>', unsafe_allow_html=True)
+    recommendations = task_manager.get_recommendations(st.session_state.last_emotion)
+    for rec in recommendations:
+        st.info(f"💡 {rec}")
 else:
-    with st.expander("🎯 Recommended Tasks", expanded=False):
-        st.info("Complete an emotion analysis to get task recommendations")
+    st.info("🎯 Complete an emotion analysis to get task recommendations")
 
 st.markdown('</div>', unsafe_allow_html=True)
