@@ -1,14 +1,30 @@
-numpy>=1.19.0
-tensorflow>=2.10.0
-pandas
-librosa>=0.8.0
-opencv-python>=4.5.0
-scikit-learn
-streamlit>=1.0.0
-keras>=2.4.0
-sounddevice>=0.4.0
-tqdm
-ipywidgets
-nltk
-SpeechRecognition>=3.8.1
-PyAudio>=0.2.11
+# Core Framework - Essential components
+streamlit>=1.31.0        # Modern web interface
+opencv-python-headless>=4.8.0  # Optimized computer vision
+numpy>=1.23.5           # Numerical processing
+
+# AI/ML Core - Emotion detection engines
+deepface>=0.0.79        # Facial analysis
+transformers>=4.36.0    # Text processing
+torch==2.1.0+cpu       # PyTorch CPU version
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# Audio Processing Suite
+sounddevice>=0.4.6      # Real-time audio
+scipy>=1.10.1           # Signal processing
+SpeechRecognition>=3.10.0  # Speech to text
+PyAudio>=0.2.13         # Audio I/O
+openai-whisper>=20231117  # Enhanced STT
+
+# Visualization & UI
+plotly>=5.18.0          # Interactive charts
+
+# System & Utils
+nest-asyncio>=1.5.8     # Async support
+asyncio>=3.4.3          # Async operations
+python-dotenv>=1.0.0    # Environment management
+typing-extensions>=4.8.0  # Type hints
+
+# Optional Enhancements
+scikit-learn>=1.0.2     # ML utilities
+pandas>=1.5.0           # Data manipulation

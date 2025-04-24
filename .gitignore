@@ -1,10 +1,2 @@
-data/
-tf_env/
-.venv
-.vscode
-tempCodeRunnerFile.py
-training/__pycache__/
-learn.txt
-models/logs/
-models/tokenizer.pkl
-logs/
+/emo_detec
+/datasets
