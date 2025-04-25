@@ -245,7 +245,7 @@ graph TB
         end
     end
 
-    Browser -->|HTTPS| Streamlit Server
+    Browser -->|HTTPS| Streamlit_Server
     Webcam -->|USB/Built-in| Browser
     Microphone -->|USB/Built-in| Browser
     MM -->|reads/writes| MC
