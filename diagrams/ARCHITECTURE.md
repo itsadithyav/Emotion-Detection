@@ -1,10 +1,5 @@
 # EmotiSense AI - System Architecture
 
-## Overview
-EmotiSense AI is a multi-modal emotion detection system that analyzes emotions through three channels: facial expressions, text, and voice. The system uses machine learning models and provides task recommendations based on detected emotions.
-
-## System Architecture
-
 ```mermaid
 graph TB
     %% Styling
