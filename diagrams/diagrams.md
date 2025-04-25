@@ -252,6 +252,74 @@ graph TB
     TM -->|reads/writes| TS
 ```
 
+## Query Analysis Chart
+```mermaid
+graph LR
+    %% Query Types
+    subgraph Queries[Query Types]
+        direction TB
+        E[Emotion Analysis]
+        T[Task Operations]
+        S[Statistics]
+        R[Recommendations]
+    end
+
+    %% Processing Layers
+    subgraph Processing[Query Processing]
+        direction TB
+        V[Validation Layer]
+        C[Cache Check]
+        P[Processing Layer]
+        A[Analytics Engine]
+    end
+
+    %% Storage Layer
+    subgraph Storage[Data Storage]
+        direction TB
+        MC[(Model Cache)]
+        TS[(Task Store)]
+        ES[(Emotion Store)]
+        AS[(Analytics Store)]
+    end
+
+    %% Response Types
+    subgraph Response[Response Types]
+        direction TB
+        RT[Real-time]
+        BA[Batch Analysis]
+        CA[Cached Analysis]
+    end
+
+    %% Flow Control
+    E --> V
+    T --> V
+    S --> V
+    R --> V
+
+    V --> C
+    C -->|Cache Hit| CA
+    C -->|Cache Miss| P
+
+    P --> MC
+    P --> TS
+    P --> ES
+    P --> AS
+
+    P --> RT
+    P --> BA
+
+    %% Style Definitions
+    classDef query fill:#f9f,stroke:#333
+    classDef process fill:#9cf,stroke:#333
+    classDef storage fill:#ff9,stroke:#333
+    classDef response fill:#9f9,stroke:#333
+
+    class E,T,S,R query
+    class V,C,P,A process
+    class MC,TS,ES,AS storage
+    class RT,BA,CA response
+```
+
 ## Activity Diagram
 ```mermaid
 graph TB
