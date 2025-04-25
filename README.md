@@ -1,194 +1,163 @@
-# 🎭 EmotiSense AI: Understanding Emotions Made Easy
+# 🎭 EmotiSense AI: Multimodal Emotion Detection Platform
 
-Ever wondered what emotions are hidden in a conversation, text message, or facial expression? EmotiSense AI is your friendly companion for understanding emotions in the digital world. Whether you're a researcher studying human behavior, a teacher gauging student engagement, or just curious about emotional intelligence, we've got you covered!
+EmotiSense AI is a comprehensive emotion detection platform that analyzes emotions through facial expressions, text, and voice input. Built with Python and Streamlit, it provides real-time emotion analysis with an intuitive user interface.
 
-## ✨ What Can EmotiSense Do?
+## ✨ Key Features
 
-### 🎥 See Emotions in Real-Time
-Just like having a conversation with a friend, EmotiSense reads facial expressions as they happen:
-- Catches those quick smiles and thoughtful frowns
-- Shows you exactly how confident it is about each emotion
-- Takes a final snapshot to summarize the interaction
-- Recognizes 7 human emotions: happiness, sadness, anger, neutral expressions, fear, surprise, and disgust
+### 🎥 Real-Time Facial Emotion Detection
+- Real-time facial expression analysis
+- Emotion confidence scoring
+- Smooth emotion transitions
+- Support for 7 basic emotions: happiness, sadness, anger, neutral, fear, surprise, and disgust
 
-### 📝 Understand Written Emotions
-Ever received a message and thought "What's the mood here?" EmotiSense helps by:
-- Reading between the lines of any text
-- Working with your favorite languages
-- Perfect for:
-  - Understanding social media vibes
-  - Getting the real feel of customer feedback
-  - Checking the tone of your writing
-  - Research that involves lots of text analysis
+### 📝 Text Emotion Analysis
+- Natural language emotion detection
+- Support for multiple languages
+- Confidence scoring for each emotion
+- Instant analysis of text input
 
-### 🎤 Listen and Understand
-Like a good listener, EmotiSense pays attention to spoken words:
-- Turns speech into text (even when the internet's down!)
-- Figures out the emotions in your voice
-- Great for:
-  - Making sure customer service is hitting the right notes
-  - Helping students express themselves better
-  - Making technology more accessible
-  - Creating interactive learning experiences
+### 🎤 Voice Emotion Analysis
+- Speech-to-text conversion
+- Offline speech recognition support
+- Multiple recognition engines (Whisper, Google, Sphinx)
+- Real-time voice processing
 
-## 🚀 Getting Started (It's Easy!)
+### 📋 Task Management System
+- Emotion-based task recommendations
+- Category-based task organization
+- Task completion tracking
+- Predefined task templates
 
-1. **First Steps:**
-   - Get the code (just copy and paste this):
+## 🚀 Installation & Setup
+
+1. **Clone the Repository:**
    ```bash
    git clone https://github.com/yourusername/EmotiSense-AI.git
    cd EmotiSense-AI
    ```
 
-2. **Set Up Your Environment:**
-   - Create a virtual environment:
+2. **Create Virtual Environment:**
    ```bash
    python -m venv venv
    source venv/bin/activate  # Linux/Mac
    venv\Scripts\activate     # Windows
    ```
 
-3. **Install the Essentials:**
-   - Install dependencies:
+3. **Install Dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Start Exploring:**
-   - Run the application:
+4. **Launch Application:**
    ```bash
-   streamlit run Emotion_Detection_Webcam.py
+   streamlit run Emotion_Detection.py
    ```
 
-## 🎯 Real-World Uses
+## 🔧 Technical Architecture
 
-### In the Classroom 📚
-- See if students are engaging with the material
-- Help identify when someone's struggling
-- Make online learning more personal
-- Track how well your teaching methods are working
+### Core Components
+- **EmotionSmoother**: Provides smooth emotion transitions
+- **AudioProcessor**: Handles voice input and processing
+- **TaskManager**: Manages task recommendations and tracking
+- **ModelManager**: Handles AI model initialization and caching
 
-### For Research 🔬
-- Study how people interact
-- Understand emotional patterns
-- Make human-computer interaction more natural
-- Get insights into behavior without the guesswork
+### Configuration
+```python
+class Config:
+    FRAME_RATE: int = 10
+    FACE_DETECTION_SIZE: Tuple[int, int] = (160, 160)
+    WEBCAM_DISPLAY_SIZE: Tuple[int, int] = (640, 480)
+    SAMPLE_RATE: int = 16000
+    DETECTOR_BACKEND: str = "opencv"
+    OFFLINE_MODE: bool = False
+```
 
-### At Work 💼
-- Make sure customers are happy
-- Keep an eye on team wellbeing
-- Make meetings more engaging
-- Get honest feedback about products
+## 💡 Usage Guidelines
 
-### Healthcare Support 🏥
-- Help track patient moods over time
-- Support mental health professionals
-- Make therapy sessions more insightful
-- Keep tabs on emotional wellbeing
+### Camera Mode
+1. Click "Start Camera" to begin facial analysis
+2. Position yourself in good lighting
+3. View real-time emotion analysis
+4. Check recommended tasks based on emotions
 
-## 💡 Quick Tips for Best Results
+### Text Mode
+1. Enter text in the input area
+2. Click "Analyze Text"
+3. View emotion distribution
+4. Get personalized task recommendations
 
-### For Face Detection
-- Find a spot with good lighting (like taking a selfie!)
-- Look straight at the camera
-- Keep your face visible
-- Try different expressions to see how it works
+### Voice Mode
+1. Click "Start Recording"
+2. Speak clearly into your microphone
+3. Click "Stop Recording"
+4. View transcription and emotion analysis
 
-### For Text Analysis
-- Write naturally, like you're talking to someone
-- Try different types of messages
-- See how emoji affect the results 😊
+## 🎯 Task Management
 
-### For Voice Analysis
-- Speak naturally but clearly
-- Take your time - no need to rush
-- Try different tones of voice
+### Categories
+- Work
+- Personal
+- Health
+- Learning
+- Other
 
-## 🤔 Common Questions & Quick Fixes
+### Features
+- Add custom tasks
+- Mark tasks as complete
+- View emotion-based recommendations
+- Track task progress
 
-Having trouble? Let's sort it out:
-- Camera not working? Make sure other apps aren't using it
-- Microphone issues? Check your computer's privacy settings
-- Running slow? Close those browser tabs you're not using
-- First time loading? Grab a coffee while the AI models get ready
+## 🔒 Privacy & Security
 
-## 🔬 Technical Features
-
-### Performance
-- Optimized CPU processing
-- Async operations for smooth UI
-- Efficient memory management
-- Real-time processing capabilities
-
-### Privacy & Security
 - Local processing of all data
 - No cloud dependencies
+- Optional offline mode
 - Secure data handling
-- Optional data anonymization
-
-## 🔒 Your Privacy Matters
-
-We take privacy seriously:
-- Everything stays on your computer
-- No sneaky data collection
-- Camera and mic only work when you want them to
-- You're in control of your data
+- No data storage beyond session
 
 ## 🔧 Advanced Configuration
 
-### Custom Model Integration
-```python
-# Example: Using custom emotion models
-from deepface import DeepFace
-custom_model_path = "path/to/model"
-DeepFace.build_model(custom_model_path)
-```
-
 ### Performance Tuning
 ```python
-# Adjust these in config.py
-FRAME_RATE = 15        # Higher for better tracking
-BUFFER_SIZE = 5        # Emotion smoothing
-BATCH_SIZE = 1         # Processing batch size
+FRAME_RATE = 10        # Adjust for smoother/faster processing
+BUFFER_SIZE = 5        # Emotion smoothing window
+DETECTOR_BACKEND = "opencv"  # Change detection backend
 ```
 
-## 📊 Output Formats
+### Model Configuration
+```python
+TEXT_MODEL = "SamLowe/roberta-base-go_emotions"
+MODEL_CACHE_TTL = 30  # Days to keep cached models
+OFFLINE_MODE = False  # Force offline processing
+```
 
-### Emotion Analysis JSON
+## 📊 Output Format
+
+### Emotion Analysis Result
 ```json
 {
   "dominant_emotion": "happy",
   "confidence": 0.85,
-  "emotion_distribution": {
+  "emotion_scores": {
     "happy": 0.85,
     "neutral": 0.10,
-    "others": 0.05
+    "sad": 0.03,
+    "angry": 0.02
   }
 }
 ```
 
-## 👋 Come Join Us!
+## 🤝 Contributing
 
-Got ideas? Want to make EmotiSense even better? We'd love to have you on board! Whether you're a coder, designer, or just have great ideas, there's room for everyone in making technology more emotionally intelligent.
-
-## 🎯 Current Limitations (We're Working On These!)
-
-- Works best on computers (mobile version coming soon!)
-- Takes a moment to load (we like to be thorough!)
-- Needs decent lighting (just like your eyes do!)
-- Downloads some files first time (but only once!)
+Contributions are welcome! Please check our contribution guidelines.
 
 ## 📝 License
 
 MIT License - Feel free to use for personal and commercial projects.
 
-## 🤝 Contributing
-
-Contributions welcome! Please check our contribution guidelines.
-
 ## ⚠️ Known Limitations
 
-- CPU-only implementation for wider compatibility
-- Brief initial loading time for models
+- CPU-only processing for wider compatibility
+- Initial model loading time
 - Requires good lighting for facial detection
-- Network access needed for first-time model download
+- Network connection needed for first-time model download
