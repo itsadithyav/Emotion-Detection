@@ -5,24 +5,47 @@
 graph LR
     User((User))
     subgraph EmotiSense AI
-        UC1[Analyze Facial Emotions]
-        UC2[Analyze Text Emotions]
-        UC3[Analyze Voice Emotions]
-        UC4[Manage Tasks]
-        UC5[View Recommendations]
-        UC6[View Emotion Statistics]
+        subgraph Analysis [Emotion Analysis]
+            UC1[Analyze Facial Emotions]
+            UC2[Analyze Text Emotions]
+            UC3[Analyze Voice Emotions]
+        end
+        subgraph Management [Task Management]
+            UC4[Manage Tasks]
+            UC4_1[Create Task]
+            UC4_2[Edit Task]
+            UC4_3[Delete Task]
+        end
+        subgraph Insights [Insights & Reports]
+            UC5[View Recommendations]
+            UC6[View Emotion Statistics]
+            UC6_1[View Daily Report]
+            UC6_2[View Trends]
+        end
     end
     
-    User --> UC1
-    User --> UC2
-    User --> UC3
-    User --> UC4
-    User --> UC5
-    User --> UC6
+    User --> Analysis
+    User --> Management
+    User --> Insights
     
-    UC5 -.-> UC1
-    UC5 -.-> UC2
-    UC5 -.-> UC3
+    UC4 --> UC4_1
+    UC4 --> UC4_2
+    UC4 --> UC4_3
+    
+    UC6 --> UC6_1
+    UC6 --> UC6_2
+    
+    UC5 -.->|uses| UC1
+    UC5 -.->|uses| UC2
+    UC5 -.->|uses| UC3
+    
+    %% Add notes
+    classDef note fill:#ffffcc
+    note1[Real-time Analysis]:::note
+    note2[Data-driven Insights]:::note
+    
+    UC1 -.-> note1
+    UC5 -.-> note2
 ```
 
 ## Class Diagram
@@ -35,6 +58,8 @@ classDiagram
         +SAMPLE_RATE: int
         +MIN_AUDIO_LENGTH: float
         +DETECTOR_BACKEND: str
+        +validate_settings()
+        +load_from_file()
     }
 
     class TaskManager {
@@ -42,16 +67,31 @@ classDiagram
         -tasks: Dict
         -predefined_tasks: Dict
         -emotion_categories: Dict
-        +add_task()
-        +complete_task()
-        +get_recommendations()
+        +add_task(task: Task)
+        +complete_task(task_id: str)
+        +get_recommendations(emotions: List)
+        +update_task(task_id: str, data: Dict)
+        +delete_task(task_id: str)
+        +get_task_history()
+    }
+
+    class EmotionAnalyzer {
+        -current_emotion: str
+        -confidence: float
+        -history: List
+        +analyze_face(frame: np.array)
+        +analyze_text(text: str)
+        +analyze_voice(audio: np.array)
+        +get_emotion_history()
     }
 
     class EmotionSmoother {
         -buffer_size: int
         -buffer: List
         -index: int
-        +update()
+        +update(emotion: str)
+        +get_smooth_emotion()
+        +reset_buffer()
     }
 
     class AudioRecorder {
@@ -62,17 +102,34 @@ classDiagram
         +start()
         +stop()
         +callback()
+        +get_audio_data()
     }
 
     class ModelManager {
         -config: Config
+        -models: Dict
+        -cache_dir: str
         +initialize_models()
         +clean_old_cache()
+        +get_model(name: str)
+        +update_model(name: str)
+    }
+
+    class StatisticsManager {
+        -data: DataFrame
+        +update_stats(emotion: str)
+        +get_daily_report()
+        +get_trends()
+        +export_data()
     }
 
     TaskManager --> Config
     ModelManager --> Config
     AudioRecorder --> Config
+    EmotionAnalyzer --> ModelManager
+    EmotionAnalyzer --> EmotionSmoother
+    TaskManager ..> StatisticsManager
+    EmotionAnalyzer ..> StatisticsManager
 ```
 
 ## Sequence Diagram
@@ -80,37 +137,67 @@ classDiagram
 sequenceDiagram
     actor User
     participant UI as Web Interface
+    participant Auth as Authentication
     participant Camera as Camera Module
     participant Smoother as EmotionSmoother
     participant Models as ModelManager
     participant Tasks as TaskManager
+    participant Stats as StatisticsManager
+    participant DB as Database
 
-    User->>UI: Start emotion analysis
+    User->>UI: Start application
     activate UI
-    UI->>Camera: Initialize camera
+    
+    UI->>Auth: Verify credentials
+    activate Auth
+    Auth-->>UI: Authentication success
+    deactivate Auth
+    
+    par Initialize Components
+        UI->>Camera: Initialize camera
+        UI->>Models: Load models
+        UI->>Tasks: Load task data
+    end
+    
     activate Camera
+    activate Models
+    activate Tasks
+    
     Camera-->>UI: Camera ready
+    Models-->>UI: Models loaded
+    Tasks-->>UI: Tasks loaded
     
     loop Until stopped
-        Camera->>Camera: Capture frame
-        Camera->>Models: Process frame
-        activate Models
-        Models->>Smoother: Update emotions
-        activate Smoother
-        Smoother-->>Models: Smoothed emotions
-        deactivate Smoother
-        Models-->>UI: Analysis results
-        deactivate Models
-        UI->>Tasks: Get recommendations
-        activate Tasks
-        Tasks-->>UI: Task suggestions
-        deactivate Tasks
-        UI-->>User: Display results
+        par Processing Streams
+            Camera->>Camera: Capture frame
+            Camera->>Models: Process frame
+            Models->>Smoother: Update emotions
+            Smoother-->>Models: Smoothed emotions
+            Models-->>Stats: Update statistics
+        and
+            UI->>Tasks: Check pending tasks
+            Tasks-->>UI: Active tasks
+        end
+        
+        UI->>Stats: Request analytics
+        Stats->>DB: Query data
+        DB-->>Stats: Return data
+        Stats-->>UI: Analytics results
+        
+        UI-->>User: Update display
     end
 
     User->>UI: Stop analysis
-    UI->>Camera: Release camera
+    
+    par Cleanup
+        UI->>Camera: Release camera
+        UI->>Models: Save state
+        UI->>DB: Save session data
+    end
+    
     deactivate Camera
+    deactivate Models
+    deactivate Tasks
     deactivate UI
 ```
 
