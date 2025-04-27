@@ -28,3 +28,6 @@ typing-extensions>=4.8.0  # Type hints
 # Optional Enhancements
 scikit-learn>=1.0.2     # ML utilities
 pandas>=1.5.0           # Data manipulation
+tqdm>=4.65.0           # Progress bars
+requests>=2.31.0        # HTTP requests
+Pillow>=10.0.0         # Image processing
